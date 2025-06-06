@@ -1,1 +1,14 @@
-
+{
+  "name": "Rudra-music-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "latest",
+    "axios": "latest",
+    "cors": "latest",
+    "fs-extra": "latest"
+  }
+}
