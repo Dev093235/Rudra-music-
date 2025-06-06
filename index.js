@@ -11,11 +11,11 @@ app.use(cors());
 const PORT = process.env.PORT || 3000;
 const CACHE_DIR = path.join(__dirname, "cache");
 
-// cache फोल्डर बनाओ अगर न हो तो
+// cache folder bana do agar nahi hai
 fs.ensureDirSync(CACHE_DIR);
 
-// फाइल डिलीट करने का फंक्शन
-function deleteFileAfterTimeout(filePath, timeout = 5 * 60 * 1000) { // 5 मिनट
+// File ko 5 minute baad delete karne ka function
+function deleteFileAfterTimeout(filePath, timeout = 5 * 60 * 1000) {
   setTimeout(() => {
     if (fs.existsSync(filePath)) {
       fs.unlink(filePath, (err) => {
@@ -26,17 +26,18 @@ function deleteFileAfterTimeout(filePath, timeout = 5 * 60 * 1000) { // 5 मि
   }, timeout);
 }
 
-// होम रूट
+// Home route
 app.get("/", (req, res) => {
   res.send("JioSaavn Music Downloader API is running");
 });
 
+// Download route
 app.get("/download", async (req, res) => {
   const query = req.query.song;
   if (!query) return res.status(400).json({ error: "song query missing" });
 
   try {
-    // JioSaavn unofficial search API (saavn.me)
+    // JioSaavn unofficial search API
     const searchRes = await axios.get(`https://saavn.me/search/songs?query=${encodeURIComponent(query)}`);
 
     if (!searchRes.data || !searchRes.data.data || searchRes.data.data.length === 0)
@@ -49,7 +50,7 @@ app.get("/download", async (req, res) => {
     const safeTitle = song.title.replace(/[^a-z0-9]/gi, "_").toLowerCase();
     const filePath = path.join(CACHE_DIR, safeTitle + ".mp3");
 
-    // अगर पहले से फाइल है तो फिर से डाउनलोड मत करो
+    // Agar pehle se file hai to use do
     if (fs.existsSync(filePath)) {
       console.log("Serving cached file:", filePath);
       return res.json({
@@ -58,12 +59,11 @@ app.get("/download", async (req, res) => {
         album: song.album,
         year: song.year,
         image: song.image[3]?.link || song.image[0]?.link || "",
-        path: filePath,
-        url: `/cache/${safeTitle}.mp3` // Serve static file url भी भेज सकते हैं
+        url: `/cache/${safeTitle}.mp3`
       });
     }
 
-    // mp3 डाउनलोड करो
+    // Mp3 download karo
     const fileStream = fs.createWriteStream(filePath);
 
     https.get(mp3Url.replace("http:", "https:"), (response) => {
@@ -77,17 +77,15 @@ app.get("/download", async (req, res) => {
         fileStream.close();
         console.log("Downloaded and saved:", filePath);
 
-        // 5 मिनट बाद फाइल डिलीट करो
+        // 5 minute baad file delete karo
         deleteFileAfterTimeout(filePath);
 
-        // फाइल path भेज दो
         res.json({
           title: song.title,
           artists: song.singers,
           album: song.album,
           year: song.year,
           image: song.image[3]?.link || song.image[0]?.link || "",
-          path: filePath,
           url: `/cache/${safeTitle}.mp3`
         });
       });
@@ -102,7 +100,7 @@ app.get("/download", async (req, res) => {
   }
 });
 
-// cache फोल्डर को static serve करो ताकि mp3 फाइल सीधे यूजर को भेज सके
+// Static cache folder serve karo
 app.use("/cache", express.static(CACHE_DIR));
 
 app.listen(PORT, () => {
