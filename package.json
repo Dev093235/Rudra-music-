@@ -1,14 +1,18 @@
 {
-  "name": "Rudra-music-api",
+  "name": "rudra-music-server",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "JioSaavn Music Downloader API",
+  "main": "server.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node server.js"
   },
+  "keywords": ["music", "jiosaavn", "audio", "mp3", "nodejs"],
+  "author": "Rudra",
+  "license": "ISC",
   "dependencies": {
-    "express": "latest",
     "axios": "latest",
     "cors": "latest",
+    "express": "latest",
     "fs-extra": "latest"
   }
 }
